@@ -26,7 +26,7 @@ const Header=()=>{
 
     const verifyPassword = async () => {
     try {
-        const response = await axios.post(`${API_URL}/verify-admin`, { password });
+        const response = await axios.post(`${API_URL}/api/auth/verify-admin`, { password });
         
         if (response.status === 200 && response.data.valid) {
             setAdmin(true);
