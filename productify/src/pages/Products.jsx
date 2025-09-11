@@ -5,6 +5,8 @@ import LoadingSpinner from "./Loading";
 import axios from "axios";
 import "@/pages/styles/Products.css";
 
+const API_URL=import.meta.env.VITE_API_URL;
+
 export default function ProductListings({ admin, searchQuery = "" }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +15,7 @@ export default function ProductListings({ admin, searchQuery = "" }) {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/products");
+        const response = await axios.get(`${API_URL}/api/products`);
         console.log("products", response.data);
         setProducts(response.data);
       } catch (err) {

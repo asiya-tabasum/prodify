@@ -5,8 +5,9 @@ import axios from 'axios';
 import {Pencil, Trash2} from "lucide-react";
 import ConfirmModal from "@/pages/modals/ConfirmModal";
 
+const API_URL=import.meta.env.VITE_API_URL;
+
 export default function ProductCard({ product,onDelete,admin }) {
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate=useNavigate();
@@ -14,7 +15,7 @@ export default function ProductCard({ product,onDelete,admin }) {
   const confirmDelete = async() => {
    
       try {
-        await axios.delete(`http://localhost:5000/api/delete-product/${product._id}`);
+        await axios.delete(`${API_URL}/api/delete-product/${product._id}`);
        
         onDelete(product._id);
         setShowDeleteModal(false);
@@ -52,7 +53,6 @@ export default function ProductCard({ product,onDelete,admin }) {
         </div>
       )}
 
-      {/* Delete confirmation modal */}
       {showDeleteModal && (
         <ConfirmModal
           title={`Are you sure you want to delete?`}
@@ -60,26 +60,18 @@ export default function ProductCard({ product,onDelete,admin }) {
           onCancel={() => setShowDeleteModal(false)}
         />
       )}
-      <div className="product-image-container">
-        {!imageLoaded && !imageError && (
-          <div className="image-placeholder">
-            <div className="loading-shimmer"></div>
-          </div>
-        )}
-        {imageError ? (
-          <div className="image-error">
-            <span>Image not available</span>
-          </div>
-        ) : (
-          <img
-            src={product.imageUrl || "/placeholder.svg"}
-            alt={product.name}
-            className={`product-image ${imageLoaded ? "loaded" : ""}`}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-          />
-        )}
-      </div>
+        <div className="product-image-container">
+      {imageError ? (
+        <div className="image-alt-text">{product.name}</div>
+      ) : (
+        <img
+          src={product.imageUrl || ""}
+          alt={product.name}
+          className="product-image"
+          onError={() => setImageError(true)}
+        />
+      )}
+    </div>
 
       <div className="product-info">
         <div className="product-category">{product.category}</div>

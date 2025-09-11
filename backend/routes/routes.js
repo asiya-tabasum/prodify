@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/product");
-const { cloudinary, uploadToCloudinary } = require("../config/cloudinary");
+const uploadToCloudinary = require("../utils/uploadToCloudinary");
 const upload = require("../middleware/upload");
 
 router.post("/add-product", upload.single("image"), async (req, res) => {
@@ -33,6 +33,24 @@ router.get("/products", async (req, res) => {
     res.status(500).json({ message: "server error" });
   }
 });
+
+
+router.get("/product/:id", async (req, res) => {
+  try {
+    const { id } = req.params; 
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(product);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 
 router.delete("/delete-product/:id", async (req, res) => {

@@ -2,9 +2,8 @@ import React from "react";
 import "@/pages/styles/Modals.css";
 
 export default function ConfirmModal({ 
-  title = "Confirm Delete you want to delete this product", 
+  title, 
   onConfirm, 
-  onCancel 
 }) {
   return (
     <div className="modal-overlay">
@@ -12,7 +11,6 @@ export default function ConfirmModal({
         <h2 className="modal-title">{title}</h2>
         <div className="modal-actions">
           <button onClick={onConfirm}>Ok</button>
-          <button  onClick={onCancel}>Cancel</button>
         </div>
       </div>
     </div>

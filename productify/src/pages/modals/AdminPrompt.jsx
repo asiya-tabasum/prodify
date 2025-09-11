@@ -1,5 +1,5 @@
 
-import "@/pages/styles/AdminPrompt.css"; 
+import "@/pages/styles/Modals.css"; 
 
 const AdminPrompt = ({ password, setPassword, onSubmit, onCancel }) => {
   return (

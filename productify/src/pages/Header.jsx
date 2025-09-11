@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import AdminPrompt from "@/pages/modals/AdminPrompt";
 import ProductListings from "./Products";
 import "@/pages/styles/Header.css";
+import axios from "axios";
 
-
+const API_URL=import.meta.env.VITE_API_URL;
 const Header=()=>{
     const [admin,setAdmin]=useState(true)
     const [searchQuery, setSearchQuery]=useState("")
@@ -12,11 +13,6 @@ const Header=()=>{
     const [showPrompt,setShowPrompt]=useState(false)
     const [password,setPassword]=useState("")
     const navigate=useNavigate();
-
-    const handleSearch=(e)=>{
-        e.preventDefault();
-        console.log("searching for",searchQuery);
-    }
 
     const handleAdmin=()=>{
     if (!admin){
@@ -26,16 +22,27 @@ const Header=()=>{
         }
     };
 
-    const verifyPassword = () => {
-    if (password === "admin123") { 
-      setAdmin(true);
-      setShowPrompt(false);
-      setPassword(""); 
-    } else {
-      alert("Incorrect password");
-      setPassword("");
+   
+
+    const verifyPassword = async () => {
+    try {
+        const response = await axios.post(`${API_URL}/verify-admin`, { password });
+        
+        if (response.status === 200 && response.data.valid) {
+            setAdmin(true);
+            setShowPrompt(false);
+            setPassword("");
+        } else {
+            alert("Incorrect password");
+            setPassword("");
+        }
+    } catch (error) {
+        console.error("Error verifying password:", error);
+        alert("Error connecting to server");
+        setPassword("");
     }
-  };
+    };
+
 
     const handleAction=(action)=>{
         console.log("action clicked",action);

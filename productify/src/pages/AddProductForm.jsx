@@ -3,8 +3,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { Upload, ImageIcon } from "lucide-react";
-import "@/pages/styles/AddProductForm.css"
+import "@/pages/styles/AddProductForm.css";
 import axios from "axios";
+import NotificationModal from "@/pages/modals/NotificationModal";
+
+const API_URL=import.meta.env.VITE_API_URL;
 
 const AddProductForm = () => {
   const navigate=useNavigate();
@@ -16,32 +19,59 @@ const AddProductForm = () => {
     image: null,
   })
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target
-    setFormData({
-      ...formData,
-      [name]: files ? files[0] : value,
-    })
-  }
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const data=new FormData();
-    Object.keys(formData).forEach((key)=>{
-        data.append(key,formData[key])
-    })
-    try{
-        axios.post("http://localhost:5000/api/add-product",data,{
-            headers:{"Content-Type":"multipart/form-data"}
-        }).then(res=>{
-            console.log("Product added",res.data);
-            navigate("/home")
-        })
-    }catch(err){
-        console.error("Error adding product",err);
-        navigate("/home")
+   const handleTextChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
     }
+  };
+
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setErrorMessage("");
+  if (!formData.name || !formData.price || !formData.category) {
+      setErrorMessage("Please fill in all required fields.");
+      return;
+    }
+  const data = new FormData();
+  Object.keys(formData).forEach(key => data.append(key, formData[key]));
+
+  try {
+    const res = await axios.post(`${API_URL}/api/add-product`, data, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    console.log("Product added", res.data);
+    setModalMessage("Product has been updated successfully!");
+    setShowModal(true)
+  } catch (err) {
+    console.error("Error adding product", err);
+      const message =
+        err.response?.data?.message ||
+        "Failed to add product. Please try again.";
+      setModalMessage(message);
+      setShowModal(true);
   }
+};
+  const handleModalConfirm = () => {
+    setShowModal(false);
+    navigate("/home");
+  };
 
   return (
     <div className="form-overlay">
@@ -60,7 +90,7 @@ const AddProductForm = () => {
                 name="name"
                 className="form-input"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={handleTextChange}
                 placeholder="Enter product name"
                 required
               />
@@ -77,7 +107,7 @@ const AddProductForm = () => {
                   name="price"
                   className="form-input"
                   value={formData.price}
-                  onChange={handleChange}
+                  onChange={handleTextChange}
                   step="0.01"
                   min="0"
                   placeholder="0.00"
@@ -94,7 +124,7 @@ const AddProductForm = () => {
                   name="category"
                   className="form-input"
                   value={formData.category}
-                  onChange={handleChange}
+                  onChange={handleTextChange}
                   required
                 >
                   <option value="">Select category</option>
@@ -116,7 +146,7 @@ const AddProductForm = () => {
                 name="description"
                 className="form-textarea"
                 value={formData.description}
-                onChange={handleChange}
+                onChange={handleTextChange}
                 rows="3"
                 placeholder="Enter product description..."
               />
@@ -133,7 +163,7 @@ const AddProductForm = () => {
                   name="image"
                   className="file-input"
                   accept="image/*"
-                  onChange={handleChange}
+                  onChange={handleImageChange}
                 />
                 <div className="file-input-display">
                   <ImageIcon className="file-icon" size={20} />
@@ -156,6 +186,12 @@ const AddProductForm = () => {
           </div>
         </form>
       </div>
+       {showModal && (
+        <NotificationModal 
+          title="Your product has been added!" 
+          onConfirm={handleModalConfirm} 
+        />
+      )}
     </div>
   )
 }

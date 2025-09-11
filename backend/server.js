@@ -4,13 +4,17 @@ const cors=require('cors');
 require("dotenv").config();
 
 const app = express();
-const routes= require("./routes/routes")
+const productRoutes= require("./routes/routes")
+const authRoutes=require("./routes/authRoutes")
+
 app.use(express.json());
 app.use(cors())
-app.use("/api",routes)
+app.use("/api",productRoutes)
+app.use("/api/auth",authRoutes)
+
 
 app.get("/", (req, res) => {
-  res.send("Hello from Backend 🚀");
+  res.send("From Backend");
 });
 mongoose.connect(process.env.MONGODB_URL)
   .then(() => {

@@ -1,22 +1,28 @@
-
-
-import { useState,useEffect } from "react"
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Upload, ImageIcon } from "lucide-react";
-import "@/pages/styles/AddProductForm.css"
+import "@/pages/styles/AddProductForm.css";
 import axios from "axios";
+import NotificationModal from "@/pages/modals/NotificationModal";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const EditProductForm = () => {
-  const navigate=useNavigate();
-  const location=useLocation();
-  const {id} = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = useParams();
+
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     category: "",
     description: "",
     image: null,
-  })
+  });
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   
   useEffect(() => {
@@ -30,58 +36,82 @@ const EditProductForm = () => {
         image: null, 
       });
     } else {
-     
-      axios.put(`http://localhost:5000/api/edit-product/${id}`)
-        .then(res => {
-          const product = res.data;
-          setFormData({
-            name: product.name,
-            price: product.price,
-            category: product.category,
-            description: product.description,
-            image: null,
-          });
+      axios.get(`${API_URL}/api/product/${id}`).then((res) => {
+        const product = res.data;
+        setFormData({
+          name: product.name,
+          price: product.price,
+          category: product.category,
+          description: product.description,
+          image: null,
         });
+      });
     }
   }, [id, location.state]);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target
-    setFormData({
-      ...formData,
-      [name]: files ? files[0] : value,
-    })
-  }
+  const handleTextChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const data=new FormData();
-    Object.keys(formData).forEach((key)=>{
-        data.append(key,formData[key])
-    })
-    if (!formData.image && location.state?.product?.imageUrl) {
-    data.append("existingImage", location.state.product.imageUrl);
-  }
-    try{
-        axios.put(`http://localhost:5000/api/edit-product/${id}`,data,{
-            headers:{"Content-Type":"multipart/form-data"}
-        }).then(res=>{
-            console.log("Product edited",res.data);
-            navigate("/home")
-        })
-    }catch(err){
-        console.error("Error editing product",err);
-        navigate("/home")
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, image: file }));
     }
-  }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage(""); 
+
+    if (!formData.name || !formData.price || !formData.category) {
+      setErrorMessage("Please fill in all required fields.");
+      return;
+    }
+
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => data.append(key, formData[key]));
+
+   
+    if (!formData.image && location.state?.product?.imageUrl) {
+      data.append("existingImage", location.state.product.imageUrl);
+    }
+
+    try {
+      const res = await axios.put(`${API_URL}/api/edit-product/${id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("Product edited", res.data);
+
+      setModalMessage("Product has been updated successfully!");
+      setShowModal(true);
+    } catch (err) {
+      console.error("Error editing product", err);
+      const message =
+        err.response?.data?.message ||
+        "Failed to edit product. Please try again.";
+      setModalMessage(message);
+      setShowModal(true);
+    }
+  };
+
+  const handleModalConfirm = () => {
+    setShowModal(false);
+    if (modalMessage === "Product has been updated successfully!") {
+      navigate("/home");
+    }
+  };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="form-overlay">
+      <div className="form-content">
         <h2 className="form-title">Edit Product</h2>
+
+        {errorMessage && <div className="form-error">{errorMessage}</div>}
+
         <form onSubmit={handleSubmit} className="product-form">
           <div className="form-section">
-
             <div className="form-group">
               <label htmlFor="name" className="form-label">
                 Product Name *
@@ -92,7 +122,7 @@ const EditProductForm = () => {
                 name="name"
                 className="form-input"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={handleTextChange}
                 placeholder="Enter product name"
                 required
               />
@@ -109,7 +139,7 @@ const EditProductForm = () => {
                   name="price"
                   className="form-input"
                   value={formData.price}
-                  onChange={handleChange}
+                  onChange={handleTextChange}
                   step="0.01"
                   min="0"
                   placeholder="0.00"
@@ -126,7 +156,7 @@ const EditProductForm = () => {
                   name="category"
                   className="form-input"
                   value={formData.category}
-                  onChange={handleChange}
+                  onChange={handleTextChange}
                   required
                 >
                   <option value="">Select category</option>
@@ -148,7 +178,7 @@ const EditProductForm = () => {
                 name="description"
                 className="form-textarea"
                 value={formData.description}
-                onChange={handleChange}
+                onChange={handleTextChange}
                 rows="3"
                 placeholder="Enter product description..."
               />
@@ -165,12 +195,16 @@ const EditProductForm = () => {
                   name="image"
                   className="file-input"
                   accept="image/*"
-                  onChange={handleChange}
+                  onChange={handleImageChange}
                 />
                 <div className="file-input-display">
                   <ImageIcon className="file-icon" size={20} />
                   <span className="file-text">
-                    {formData.image ? formData.image.name : "Choose image file or drag and drop"}
+                    {formData.image
+                      ? formData.image.name
+                      : location.state?.product?.imageUrl
+                      ? "Current image will be kept"
+                      : "Choose image file or drag and drop"}
                   </span>
                   <Upload className="upload-icon" size={16} />
                 </div>
@@ -179,7 +213,11 @@ const EditProductForm = () => {
           </div>
 
           <div className="form-actions">
-            <button type="button" className="btn-cancel" onClick={()=>navigate("/home")}>
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={() => navigate("/home")}
+            >
               Cancel
             </button>
             <button type="submit" className="btn-submit">
@@ -188,8 +226,12 @@ const EditProductForm = () => {
           </div>
         </form>
       </div>
-    </div>
-  )
-}
 
-export default EditProductForm
+      {showModal && (
+        <NotificationModal title={modalMessage} onConfirm={handleModalConfirm} />
+      )}
+    </div>
+  );
+};
+
+export default EditProductForm;
