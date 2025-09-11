@@ -78,7 +78,7 @@ export default function ProductCard({ product,onDelete,admin }) {
         <h3 className="product-title">{product.name}</h3>
         <p className="product-description">{product.description}</p>
         <div className="product-footer">
-          <div className="product-price">${product.price.toFixed(2)}</div>
+          <div className="product-price">&#8377;{product.price.toFixed(2)}</div>
           <button className="add-to-cart-btn" onClick={handleAddToCart}>
             Add to Cart
           </button>
