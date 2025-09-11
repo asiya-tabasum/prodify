@@ -1,11 +1,10 @@
-// routes/product.js
+
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/product");
 const { cloudinary, uploadToCloudinary } = require("../config/cloudinary");
 const upload = require("../middleware/upload");
 
-// Add product
 router.post("/add-product", upload.single("image"), async (req, res) => {
   try {
     let imageData = null;
@@ -26,7 +25,6 @@ router.post("/add-product", upload.single("image"), async (req, res) => {
   }
 });
 
-// Get all products
 router.get("/products", async (req, res) => {
   try {
     const products = await Product.find();
@@ -36,13 +34,13 @@ router.get("/products", async (req, res) => {
   }
 });
 
-// Delete product
+
 router.delete("/delete-product/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // delete image from Cloudinary
+   
     if (product.imagePublicId) {
       await cloudinary.uploader.destroy(product.imagePublicId);
     }
@@ -55,7 +53,7 @@ router.delete("/delete-product/:id", async (req, res) => {
   }
 });
 
-// Edit product
+
 router.put("/edit-product/:id", upload.single("image"), async (req, res) => {
   try {
     console.log("req",req)
@@ -69,12 +67,12 @@ router.put("/edit-product/:id", upload.single("image"), async (req, res) => {
     console.log("updated data",updateData)
 
     if (req.file?.buffer) {
-      // delete old image
+      
       if (product.imagePublicId) {
         await cloudinary.uploader.destroy(product.imagePublicId);
       }
 
-      // upload new image
+      
       const imageData = await uploadToCloudinary(req.file.buffer, "products");
       updateData.imageUrl = imageData.url;
       updateData.imagePublicId = imageData.public_id;
@@ -86,7 +84,7 @@ router.put("/edit-product/:id", upload.single("image"), async (req, res) => {
       { new: true }
     );
 
-    console.log("updatred",updatedProduct)
+    console.log("updated",updatedProduct)
 
     res.json({ message: "Product updated successfully", product: updatedProduct });
   } catch (error) {

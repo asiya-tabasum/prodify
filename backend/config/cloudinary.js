@@ -1,4 +1,4 @@
-// utils/cloudinary.js
+
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
 
@@ -9,7 +9,7 @@ cloudinary.config({
   secure: true,
 });
 
-// Upload to Cloudinary using buffer (stream)
+
 const uploadToCloudinary = (fileBuffer, folder = "products") => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -26,7 +26,6 @@ const uploadToCloudinary = (fileBuffer, folder = "products") => {
       }
     );
 
-    // Push buffer data into stream
     stream.end(fileBuffer);
   });
 };
