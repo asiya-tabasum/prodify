@@ -6,6 +6,8 @@
 [![Node.js](https://img.shields.io/badge/Backend-Node.js-green)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/Database-MongoDB-brightgreen)](https://www.mongodb.com/)
 
+**Demo video**: https://1drv.ms/v/c/159D7BDBBDD69B89/Ef6V6Kaeq65OjsW6M_NZFxIBleKtjH-h5OY-K1FPyl1_tg
+
 **Prodify** is a **Product Management Application** that allows users to **perform CRUD operations** on products. It is built using **React + Vite** for the frontend, **Node.js + Express.js** for the backend, and **MongoDB** as the database. This application is designed for **e-commerce product management** and helps admin users easily add, edit, and delete products.
 
 ---
