@@ -54,7 +54,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser to view the frontend.
+Create .env file with VITE_API_URL to store the backend api where it is running. Open [http://localhost:3000](http://localhost:3000) in your browser to view the frontend.
 
 ---
 
