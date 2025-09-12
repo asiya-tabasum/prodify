@@ -1,4 +1,3 @@
-
 # Prodify
 
 [![React](https://img.shields.io/badge/Frontend-React-blue)](https://reactjs.org/)
@@ -52,9 +51,15 @@
 cd productify
 npm install
 npm run dev
+````
+
+1. Create a `.env` file in the `productify` root with the following variable:
+
+```env
+VITE_API_URL=http://localhost:5000
 ```
 
-Create .env file with VITE_API_URL to store the backend api where it is running. Open [http://localhost:3000](http://localhost:3000) in your browser to view the frontend.
+2. Open [http://localhost:3000](http://localhost:3000) in your browser to view the frontend.
 
 ---
 
@@ -105,6 +110,7 @@ Prodify/
 │   │   ├── pages/     # Header, Products, modals
 │   │   ├── styles/    # CSS files
 │   │   └── App.jsx
+│   ├── .env           # Frontend API URL
 │   └── index.html
 ├── .gitignore
 └── README.md
@@ -133,6 +139,4 @@ Prodify/
 
 This project is **MIT Licensed**.
 
-
-
-Do you want me to do that?
+```
